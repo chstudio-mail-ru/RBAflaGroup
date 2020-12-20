@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Magazines;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -61,7 +62,9 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $magazines = Magazines::getAll();
+
+        return $this->render('index', ['magazines' => $magazines]);
     }
 
     /**
