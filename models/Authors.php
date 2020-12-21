@@ -18,6 +18,8 @@ use yii\db\ActiveRecord;
 
 class Authors extends ActiveRecord
 {
+    public $title = "Авторы";
+
     public static function tableName(): string
     {
         return 'authors';
@@ -26,8 +28,21 @@ class Authors extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['id'], 'integer'],
-            [['title', 'surname', 'name', 'patronymic'], 'string']
+            [['name', 'patronymic'], 'string'],
+            [['surname'], 'string', 'min' => 3],
+            [['surname', 'name'], 'required'],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeLabels(): array
+    {
+        return [
+            'surname' => 'Фамилия',
+            'name' => 'Имя',
+            'patronymic' => 'Отчество',
         ];
     }
 

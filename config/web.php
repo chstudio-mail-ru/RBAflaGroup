@@ -5,6 +5,8 @@ $db = require __DIR__ . '/db.php';
 
 $config = [
     'id' => 'basic',
+    'language' => 'ru-RU',
+    'sourceLanguage' => 'en-US',
     'name'=>'R&B Afla Group',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
@@ -16,6 +18,12 @@ $config = [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => '5tVIgm4ew3610oFiq0tyrTIkbQEMZm4w',
+        ],
+        'formatter' => [
+            'class' => 'yii\i18n\Formatter',
+            'dateFormat' => 'php:d-m-Y',
+            'datetimeFormat' => 'php:d-m-Y H:i:s',
+            'timeFormat' => 'php:H:i:s',
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -49,9 +57,6 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 '/' => 'site/index',
-                'about' => 'site/about',
-                'contact' => 'site/contact',
-                'login' => 'site/login',
             ],
         ],
     ],

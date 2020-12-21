@@ -3,6 +3,7 @@
 namespace app\models;
 
 use yii\base\InvalidConfigException;
+use yii\behaviors\AttributeBehavior;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -26,8 +27,38 @@ class Magazines extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['id', 'date_add'], 'integer'],
+            [['date_add'], 'date', 'format' => 'php:d.m.Y'],
             [['name', 'description'], 'string']
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors() {
+        return [
+            [
+                'class'      => AttributeBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['date_add'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['date_add'],
+                ],
+                'value' => function ($event) {
+                    return date('Y-m-d', strtotime($this->date_add));
+                },
+            ],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeLabels(): array
+    {
+        return [
+            'name' => 'Название',
+            'description' => 'Краткое описание',
+            'date_add' => 'Дата',
         ];
     }
 
