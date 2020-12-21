@@ -62,9 +62,7 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        $magazines = Magazines::getAll();
-
-        return $this->render('index', ['magazines' => $magazines]);
+        return $this->render('index');
     }
 
     /**
