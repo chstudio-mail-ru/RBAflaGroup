@@ -10,7 +10,11 @@ $this->title = $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Журналы', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
-$model->date_add = date('d.m.Y', strtotime($model->date_add));
+if ($model->date_add != '' && $model->date_add != '0000-00-00 00:00:00') {
+    $model->date_add = date('d.m.Y', strtotime($model->date_add));
+} else {
+    $model->date_add = '';
+}
 ?>
 <div class="magazines-view">
 
@@ -32,6 +36,11 @@ $model->date_add = date('d.m.Y', strtotime($model->date_add));
         'attributes' => [
             'name',
             'description',
+            [
+                'attribute' => 'image',
+                'value' => $model->image,
+                'format' => ['image', ['width' => '100']],
+            ],
             'date_add',
         ],
     ]) ?>

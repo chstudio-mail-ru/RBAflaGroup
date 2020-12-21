@@ -2,12 +2,14 @@
 
 namespace app\controllers;
 
+use app\models\MagazinesAuthors;
 use Yii;
 use app\models\Magazines;
 use app\models\MagazinesSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
 /**
  * MagazinesController implements the CRUD actions for Magazines model.
@@ -50,10 +52,17 @@ class MagazinesController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView(int $id)
     {
+        $model = $this->findModel($id);
+        if (file_exists('uploads/'.md5($id).'.jpg')) {
+            $model->image = '/uploads/'.md5($id).'.jpg';
+        } elseif (file_exists('uploads/'.md5($id).'.png')) {
+            $model->image = '/uploads/'.md5($id).'.png';
+        }
+
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model' => $model,
         ]);
     }
 
@@ -67,6 +76,11 @@ class MagazinesController extends Controller
         $model = new Magazines();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            if(Yii::$app->request->isPost) {
+                $model->image = UploadedFile::getInstance($model, 'image');
+                $model->upload();
+            }
+
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -82,11 +96,13 @@ class MagazinesController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($id)
+    public function actionUpdate(int $id)
     {
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            $model->image = UploadedFile::getInstance($model, 'image');
+            $model->upload();
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -102,10 +118,16 @@ class MagazinesController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($id)
+    public function actionDelete(int $id)
     {
-        $this->findModel($id)->delete();
-
+        if ($this->findModel($id)->delete()) {
+            MagazinesAuthors::deleteMagazine($id);
+            if (file_exists('uploads/'.md5($id).'.jpg')) {
+                unlink('uploads/'.md5($id).'.jpg');
+            } elseif (file_exists('uploads/'.md5($id).'.png')) {
+                unlink('uploads/'.md5($id).'.png');
+            }
+        }
         return $this->redirect(['index']);
     }
 
@@ -116,10 +138,15 @@ class MagazinesController extends Controller
      * @return Magazines the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id)
+    protected function findModel(int $id): Magazines
     {
         if (($model = Magazines::findOne($id)) !== null) {
-            $model->date_add = date('Y-m-d', strtotime($model->date_add));
+            if ($model->date_add != '0000-00-00 00:00:00') {
+                $model->date_add = date('Y-m-d', strtotime($model->date_add));
+            } else {
+                $model->date_add = '';
+            }
+
             return $model;
         }
 

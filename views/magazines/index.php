@@ -29,7 +29,25 @@ $this->params['breadcrumbs'][] = $this->title;
 
             'name',
             'description',
-            ['attribute' => 'date_add', 'format' => ['date', 'php:d.m.Y']],
+            [
+                'attribute' => 'image',
+                'value' => function ($model) {
+                    return $model->getImageUrl();
+                },
+                'format' => ['image', ['width' => '100']],
+            ],
+            [
+                'attribute' => 'date_add',
+                'value' => function ($model) {
+                    $date = new \DateTime($model->date_add);
+
+                    if ($date->getTimestamp() < 0) {
+                        return 'Не задано';
+                    }
+
+                    return $date->format('d.m.Y');
+                },
+            ],
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

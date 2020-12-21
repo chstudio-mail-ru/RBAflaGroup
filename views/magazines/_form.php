@@ -16,6 +16,16 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'description')->textInput(['maxlength' => true]) ?>
 
+    <?php
+        if (file_exists('uploads/'.md5($model->id).'.jpg')) {
+            echo '<img src="/uploads/'.md5($model->id).'.jpg" width="100" />';
+        } elseif (file_exists('uploads/'.md5($model->id).'.png')) {
+            echo '<img src="/uploads/'.md5($model->id).'.png" width="100" />';
+        }
+    ?>
+
+    <?= $form->field($model, 'image')->fileInput() ?>
+
     <?= $form->field($model, 'date_add')->widget(\yii\jui\DatePicker::classname(), [
         'language' => 'ru',
         'dateFormat' => 'php:d.m.Y',

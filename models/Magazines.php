@@ -19,6 +19,8 @@ use yii\db\ActiveRecord;
 
 class Magazines extends ActiveRecord
 {
+    public $image;
+
     public static function tableName(): string
     {
         return 'magazines';
@@ -27,8 +29,16 @@ class Magazines extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['date_add'], 'date', 'format' => 'php:d.m.Y'],
-            [['name', 'description'], 'string']
+            [['date_add'], 'date', 'when' => function($model) {
+                if ($model->date_add != '1970-01-01') {
+                    return !is_numeric(strtotime($model->date_add));
+                } else {
+                    return true;
+                }
+            }, 'message' => 'Дата не корректно заполнена'],
+            [['name', 'description'], 'string'],
+            [['name'], 'required'],
+            [['image'], 'file', 'extensions' => 'png, jpg', 'maxSize' => 2 * 1024 * 1024],
         ];
     }
 
@@ -38,7 +48,7 @@ class Magazines extends ActiveRecord
     public function behaviors() {
         return [
             [
-                'class'      => AttributeBehavior::className(),
+                'class' => AttributeBehavior::className(),
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => ['date_add'],
                     ActiveRecord::EVENT_BEFORE_UPDATE => ['date_add'],
@@ -58,6 +68,7 @@ class Magazines extends ActiveRecord
         return [
             'name' => 'Название',
             'description' => 'Краткое описание',
+            'image' => 'Изображение',
             'date_add' => 'Дата',
         ];
     }
@@ -79,6 +90,33 @@ class Magazines extends ActiveRecord
         return self::find()
             ->where(['id' => $id])
             ->one();
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function upload(): bool
+    {
+        if ($this->validate() && $this->image) {
+            $this->image->saveAs("uploads/".md5($this->id).".".$this->image->extension);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getImageUrl(): ?string
+    {
+        if (file_exists('uploads/'.md5($this->id).'.jpg')) {
+            $this->image = '/uploads/'.md5($this->id).'.jpg';
+        } elseif (file_exists('uploads/'.md5($this->id).'.png')) {
+            $this->image = '/uploads/'.md5($this->id).'.png';
+        }
+
+        return $this->image;
     }
 
     /**

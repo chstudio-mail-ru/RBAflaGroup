@@ -34,4 +34,26 @@ class MagazinesAuthors extends ActiveRecord
             ->andWhere(['author_id' => $author_id])
             ->one();
     }
+
+    public static function getRelations($author_id): array
+    {
+        return self::find()
+            ->where(['author_id' => $author_id])
+            ->all();
+    }
+
+    public static function findByMagazineId($magazine_id): array
+    {
+        return self::find()
+            ->where(['magazine_id' => $magazine_id])
+            ->all();
+    }
+
+    public static function deleteMagazine($magazine_id)
+    {
+        $relations = self::findByMagazineId($magazine_id);
+        foreach ($relations as $model) {
+            $model->delete();
+        }
+    }
 }
