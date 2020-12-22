@@ -27,31 +27,47 @@ class MagazinesAuthors extends ActiveRecord
         ];
     }
 
-    public static function findByBond($magazine_id, $author_id)
+    private static function relationIsExists($magazineId, $authorId)
     {
         return self::find()
-            ->where(['magazine_id' => $magazine_id])
-            ->andWhere(['author_id' => $author_id])
+            ->where(['magazine_id' => $magazineId])
+            ->andWhere(['author_id' => $authorId])
             ->one();
     }
 
-    public static function getRelations($author_id): array
+    public static function addRelation($magazineId, $authorId)
+    {
+        if (!self::relationIsExists($magazineId, $authorId)) {
+            try {
+                $relation = new MagazinesAuthors();
+                $relation->magazine_id = $magazineId;
+                $relation->author_id = $authorId;
+                return $relation->save();
+            } catch (\Throwable $e) {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    public static function findByAuthorId($authorId): array
     {
         return self::find()
-            ->where(['author_id' => $author_id])
+            ->where(['author_id' => $authorId])
             ->all();
     }
 
-    public static function findByMagazineId($magazine_id): array
+    public static function findByMagazineId($magazineId): array
     {
         return self::find()
-            ->where(['magazine_id' => $magazine_id])
+            ->where(['magazine_id' => $magazineId])
             ->all();
     }
 
-    public static function deleteMagazine($magazine_id)
+    public static function deleteMagazineRelations($magazineId)
     {
-        $relations = self::findByMagazineId($magazine_id);
+        $relations = self::findByMagazineId($magazineId);
         foreach ($relations as $model) {
             $model->delete();
         }

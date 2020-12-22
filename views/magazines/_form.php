@@ -2,9 +2,11 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use kartik\select2\Select2;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Magazines */
+/* @var $authors array */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
@@ -25,6 +27,25 @@ use yii\widgets\ActiveForm;
     ?>
 
     <?= $form->field($model, 'image')->fileInput() ?>
+
+    <?php
+        echo '<div class="form-group field-magazines-authors required'.((!empty($model->errors) && isset($model->errors['authors']))? ' has-error' : null ).'">';
+        echo '<label class="control-label" for="magazines-authors">Авторы</label>';
+        echo Select2::widget([
+            'model' => $model,
+            'attribute' => 'authors',
+            'data' => $authors,
+            'options' => ['placeholder' => 'Выберите авторов', 'multiple' => true,  'aria-required' => true, 'aria-invalid' => (!empty($model->errors) && isset($model->errors['authors']))],
+            'pluginOptions' => [
+                'allowClear' => true
+            ],
+        ]);
+        if (!empty($model->errors) && isset($model->errors['authors'])) {
+            $errorText = $model->errors['authors'][0];
+            echo '<div class="help-block">'.$errorText.'</div>';
+        }
+        echo '</div>';
+    ?>
 
     <?= $form->field($model, 'date_add')->widget(\yii\jui\DatePicker::classname(), [
         'language' => 'ru',

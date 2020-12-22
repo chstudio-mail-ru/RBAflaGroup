@@ -6,6 +6,7 @@ use yii\widgets\Pjax;
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\AuthorsSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
+/* @var $fail boolean */
 
 $this->title = 'Авторы';
 $this->params['breadcrumbs'][] = $this->title;
@@ -29,10 +30,32 @@ $this->params['breadcrumbs'][] = $this->title;
             'surname',
             'name',
             'patronymic',
+            [
+                'attribute' => 'magazines',
+                'value' => function ($model) {
+                    $magazines = $model->getMagazines();
+                    $magazinesString = '';
+                    foreach ($magazines as $magazine) {
+                        $magazinesString .= '<a href="/magazines/view/'.$magazine->id.'">'.$magazine->name.'</a><br />';
+                    }
+                    return $magazinesString;
+                },
+                'format' => 'raw',
+            ],
             ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>
 
     <?php Pjax::end(); ?>
+
+    <?php
+    if ($fail) {
+    ?>
+    <div class="form-group  has-error">
+        <div class="help-block">Невозможно удалить автора, т.к. он является автором существующих журналов</div>
+    </div>
+    <?php
+    }
+    ?>
 
 </div>

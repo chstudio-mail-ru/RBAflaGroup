@@ -41,6 +41,18 @@ if ($model->date_add != '' && $model->date_add != '0000-00-00 00:00:00') {
                 'value' => $model->image,
                 'format' => ['image', ['width' => '100']],
             ],
+            [
+                'attribute' => 'authors',
+                'value' => function ($model) {
+                    $authors = $model->getAuthors();
+                    $authorsString = '';
+                    foreach ($authors as $author) {
+                        $authorsString .= '<a href="/authors/view/'.$author->id.'">'.$author->surname.' '.$author->name.'</a><br />';
+                    }
+                    return $authorsString;
+                },
+                'format' => 'raw',
+            ],
             'date_add',
         ],
     ]) ?>

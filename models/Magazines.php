@@ -19,7 +19,9 @@ use yii\db\ActiveRecord;
 
 class Magazines extends ActiveRecord
 {
+    public $title = "Журналы";
     public $image;
+    public $authors;
 
     public static function tableName(): string
     {
@@ -39,6 +41,7 @@ class Magazines extends ActiveRecord
             [['name', 'description'], 'string'],
             [['name'], 'required'],
             [['image'], 'file', 'extensions' => 'png, jpg', 'maxSize' => 2 * 1024 * 1024],
+            ['authors', 'required', 'message' => 'Выерите хотябы 1 автора'],
         ];
     }
 
@@ -69,6 +72,7 @@ class Magazines extends ActiveRecord
             'name' => 'Название',
             'description' => 'Краткое описание',
             'image' => 'Изображение',
+            'authors' => 'Авторы',
             'date_add' => 'Дата',
         ];
     }
@@ -79,17 +83,6 @@ class Magazines extends ActiveRecord
     public static function getAll(): array
     {
         return self::find()->all();
-    }
-
-    /**
-     * @param int $id
-     * @return ActiveRecord|null
-     */
-    public static function findById(int $id): ?ActiveRecord
-    {
-        return self::find()
-            ->where(['id' => $id])
-            ->one();
     }
 
     /**
@@ -120,12 +113,14 @@ class Magazines extends ActiveRecord
     }
 
     /**
-     * @return ActiveQuery
+     * @return array|ActiveRecord[]
      * @throws InvalidConfigException
      */
-    public function getAuthors(): ActiveQuery
+    public function getAuthors(): array
     {
         return $this->hasMany(Authors::class, ['id' => 'author_id'])
-            ->viaTable(MagazinesAuthors::tableName(), ['magazine_id' => 'id']);
+            ->viaTable(MagazinesAuthors::tableName(), ['magazine_id' => 'id'])
+            ->select('*')
+            ->all();
     }
 }

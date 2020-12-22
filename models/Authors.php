@@ -3,7 +3,6 @@
 namespace app\models;
 
 use yii\base\InvalidConfigException;
-use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
@@ -19,6 +18,7 @@ use yii\db\ActiveRecord;
 class Authors extends ActiveRecord
 {
     public $title = "Авторы";
+    public $magazines;
 
     public static function tableName(): string
     {
@@ -43,6 +43,7 @@ class Authors extends ActiveRecord
             'surname' => 'Фамилия',
             'name' => 'Имя',
             'patronymic' => 'Отчество',
+            'magazines' => 'Журналы',
         ];
     }
 
@@ -57,23 +58,14 @@ class Authors extends ActiveRecord
     }
 
     /**
-     * @param int $id
-     * @return ActiveRecord|null
-     */
-    public static function findById(int $id): ?ActiveRecord
-    {
-        return self::find()
-            ->where(['id' => $id])
-            ->one();
-    }
-
-    /**
-     * @return ActiveQuery
+     * @return array|ActiveRecord[]
      * @throws InvalidConfigException
      */
-    public function getMagazines(): ActiveQuery
+    public function getMagazines(): array
     {
         return $this->hasMany(Magazines::class, ['id' => 'magazine_id'])
-            ->viaTable(MagazinesAuthors::tableName(), ['author_id' => 'id']);
+            ->viaTable(MagazinesAuthors::tableName(), ['author_id' => 'id'])
+            ->select('*')
+            ->all();
     }
 }

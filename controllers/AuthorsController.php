@@ -32,9 +32,10 @@ class AuthorsController extends Controller
 
     /**
      * Lists all Authors models.
+     * @param bool $fail
      * @return mixed
      */
-    public function actionIndex()
+    public function actionIndex($fail = false)
     {
         $searchModel = new AuthorsSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
@@ -42,7 +43,17 @@ class AuthorsController extends Controller
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
+            'fail' => $fail,
         ]);
+    }
+
+    /**
+     * Lists all Authors models and alert
+     * @return mixed
+     */
+    public function actionFail()
+    {
+        return $this->actionIndex(true);
     }
 
     /**
@@ -102,16 +113,18 @@ class AuthorsController extends Controller
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete(int $id)
     {
-        $relations = MagazinesAuthors::getRelations($id);
+        $relations = MagazinesAuthors::findByAuthorId($id);
         if (count($relations) < 1) {
             $this->findModel($id)->delete();
 
             return $this->redirect(['index']);
         } else {
-            return false;
+            return $this->redirect(['fail']);
         }
     }
 
@@ -122,7 +135,7 @@ class AuthorsController extends Controller
      * @return Authors the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id)
+    protected function findModel($id): Authors
     {
         if (($model = Authors::findOne($id)) !== null) {
             return $model;

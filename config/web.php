@@ -57,6 +57,12 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 '/' => 'site/index',
+                'authors/view/<id:\d+>'  => 'authors/view',
+                'authors/update/<id:\d+>'  => 'authors/update',
+                'authors/delete/<id:\d+>'  => 'authors/delete',
+                'magazines/view/<id:\d+>'  => 'magazines/view',
+                'magazines/update/<id:\d+>'  => 'magazines/update',
+                'magazines/delete/<id:\d+>'  => 'magazines/delete',
             ],
         ],
     ],

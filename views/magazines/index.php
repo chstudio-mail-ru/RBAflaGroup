@@ -37,6 +37,18 @@ $this->params['breadcrumbs'][] = $this->title;
                 'format' => ['image', ['width' => '100']],
             ],
             [
+                'attribute' => 'authors',
+                'value' => function ($model) {
+                    $authors = $model->getAuthors();
+                    $authorsString = '';
+                    foreach ($authors as $author) {
+                        $authorsString .= '<a href="/authors/view/'.$author->id.'">'.$author->surname.' '.$author->name.'</a><br />';
+                    }
+                    return $authorsString;
+                },
+                'format' => 'raw',
+            ],
+            [
                 'attribute' => 'date_add',
                 'value' => function ($model) {
                     $date = new \DateTime($model->date_add);

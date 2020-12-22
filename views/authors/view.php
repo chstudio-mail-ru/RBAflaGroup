@@ -32,6 +32,18 @@ $this->params['breadcrumbs'][] = $this->title;
             'surname',
             'name',
             'patronymic',
+            [
+                'attribute' => 'magazines',
+                'value' => function ($model) {
+                    $magazines = $model->getMagazines();
+                    $magazinesString = '';
+                    foreach ($magazines as $magazine) {
+                        $magazinesString .= '<a href="/magazines/view/'.$magazine->id.'">'.$magazine->name.'</a><br />';
+                    }
+                    return $magazinesString;
+                },
+                'format' => 'raw',
+            ],
         ],
     ]) ?>
 

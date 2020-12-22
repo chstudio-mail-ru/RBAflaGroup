@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Authors;
 use app\models\MagazinesAuthors;
 use Yii;
 use app\models\Magazines;
@@ -55,11 +56,6 @@ class MagazinesController extends Controller
     public function actionView(int $id)
     {
         $model = $this->findModel($id);
-        if (file_exists('uploads/'.md5($id).'.jpg')) {
-            $model->image = '/uploads/'.md5($id).'.jpg';
-        } elseif (file_exists('uploads/'.md5($id).'.png')) {
-            $model->image = '/uploads/'.md5($id).'.png';
-        }
 
         return $this->render('view', [
             'model' => $model,
@@ -74,11 +70,19 @@ class MagazinesController extends Controller
     public function actionCreate()
     {
         $model = new Magazines();
+        $authorsAR = Authors::getAll();
+        $authors = [];
+        foreach ($authorsAR as $author) {
+            $authors[$author->id] = $author->surname.' '.$author->name;
+        }
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             if(Yii::$app->request->isPost) {
                 $model->image = UploadedFile::getInstance($model, 'image');
                 $model->upload();
+                foreach ($model->authors as $authorId) {
+                    MagazinesAuthors::addRelation($model->id, $authorId);
+                }
             }
 
             return $this->redirect(['view', 'id' => $model->id]);
@@ -86,6 +90,7 @@ class MagazinesController extends Controller
 
         return $this->render('create', [
             'model' => $model,
+            'authors' => $authors,
         ]);
     }
 
@@ -99,15 +104,26 @@ class MagazinesController extends Controller
     public function actionUpdate(int $id)
     {
         $model = $this->findModel($id);
+        $authorsAR = Authors::getAll();
+        $authors = [];
+        foreach ($authorsAR as $author) {
+            $authors[$author->id] = $author->surname.' '.$author->name;
+        }
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $model->image = UploadedFile::getInstance($model, 'image');
             $model->upload();
+            MagazinesAuthors::deleteMagazineRelations($id);
+            foreach ($model->authors as $authorId) {
+                MagazinesAuthors::addRelation($id, $authorId);
+            }
+
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
         return $this->render('update', [
             'model' => $model,
+            'authors' => $authors,
         ]);
     }
 
@@ -117,11 +133,13 @@ class MagazinesController extends Controller
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete(int $id)
     {
         if ($this->findModel($id)->delete()) {
-            MagazinesAuthors::deleteMagazine($id);
+            MagazinesAuthors::deleteMagazineRelations($id);
             if (file_exists('uploads/'.md5($id).'.jpg')) {
                 unlink('uploads/'.md5($id).'.jpg');
             } elseif (file_exists('uploads/'.md5($id).'.png')) {
@@ -145,6 +163,15 @@ class MagazinesController extends Controller
                 $model->date_add = date('Y-m-d', strtotime($model->date_add));
             } else {
                 $model->date_add = '';
+            }
+            if (file_exists('uploads/'.md5($id).'.jpg')) {
+                $model->image = '/uploads/'.md5($id).'.jpg';
+            } elseif (file_exists('uploads/'.md5($id).'.png')) {
+                $model->image = '/uploads/'.md5($id).'.png';
+            }
+            $relationsAuthors = MagazinesAuthors::findByMagazineId($id);
+            foreach ($relationsAuthors as $relation) {
+                $model->authors[] = $relation->author_id;
             }
 
             return $model;
