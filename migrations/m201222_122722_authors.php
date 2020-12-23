@@ -41,9 +41,7 @@ class m201222_122722_authors extends Migration
      */
     public function safeDown()
     {
-        echo "m201222_122722_authors cannot be reverted.\n";
-
-        return false;
+        $this->dropTable('authors');
     }
 
     /*

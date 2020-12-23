@@ -43,9 +43,7 @@ class m201222_122815_magazines_ref_authors extends Migration
      */
     public function safeDown()
     {
-        echo "m201222_122815_magazines_ref_authors cannot be reverted.\n";
-
-        return false;
+        $this->dropTable('magazines_ref_authors');
     }
 
     /*

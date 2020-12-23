@@ -41,9 +41,7 @@ class m201222_122742_magazines extends Migration
      */
     public function safeDown()
     {
-        echo "m201222_122742_magazines cannot be reverted.\n";
-
-        return false;
+        $this->dropTable('magazines');
     }
 
     /*
